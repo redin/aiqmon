@@ -21,6 +21,7 @@ const int numSamples = 12;                // Number of samples for 1 minute at 5
 float pm25Samples[numSamples] = {0};
 float pm1Samples[numSamples] = {0};
 int sampleIndex = 0;
+bool displayWhichOne = false;
 
 float calc_low_ratio(float lowPulse) {
   return lowPulse / sampleTime * 100.0;  // low ratio in %
@@ -82,8 +83,18 @@ void loop() {
       avg_pm1 /= numSamples;   // Average PM1 concentration
       Serial.println("AVG Concentration PM2.5: " + String(avg_pm25) + " ug/m3");
       Serial.println("AVG Concentration PM1: " + String(avg_pm1) + " ug/m3");
-      
-      float avg_c_ugm3 = max(avg_pm25, avg_pm1);
+      display.clear();
+      float avg_c_ugm3 = 999;
+      if(displayWhichOne){
+        avg_c_ugm3= avg_pm1;
+        display.showNumberDecEx(1.0,0b01000000,false,2,0);
+        displayWhichOne = !displayWhichOne;
+      }else{
+        avg_c_ugm3= avg_pm25;
+        display.showNumberDecEx(2.5,0b01000000,false,2,0);
+        displayWhichOne = !displayWhichOne;
+      }
+      delay(1000);
   
       // Update the display based on the 1-minute average concentration
       if (avg_c_ugm3 <= 25) {
